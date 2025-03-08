@@ -1,0 +1,54 @@
+---
+title: "Getting Started"
+format: html
+---
+
+To use, load the package:
+
+```{r}
+library(qpcR)
+```
+
+Set the experiment parameters:
+
+
+```{r}
+path_to_wells_csv <- "data/WellResult28FEB25.csv"
+
+# name of the gene used to normalise
+housekeeping_target <- "GAPDH"
+
+# name of the WT sample
+WT_string <- "GFP"
+
+gene_of_interest <- "BRCA1"
+
+# sample order for plotting purposes
+sample_order <- c("GFP", "U1", "187")
+```
+
+
+# RUN
+
+Loads data, calculates deltaCq, and normalizes to the WT.
+
+```{r}
+clean_wells <- preprocess_data(path_to_wells_csv, housekeeping_target, WT_string)
+```
+
+Plots the data.
+
+```{r}
+plot_data(clean_wells, gene_of_interest, sample_order)
+```
+
+Runs the statistics, using a linear mixed effects model with the formula:
+
+`norm_rel_exp ~ sample_type + ( 1 | bio_rep )`
+
+This models the changes in the normalized relative expression as a function of the sample type, with random effects for the biological replicates, which means that variability between replicates is accounted for by allowing each replicate to have its own baseline level. This approach helps to isolate the fixed effects of the sample type on expression while controlling for the inherent differences among biological replicates.
+
+```{r}
+perform_statistics(clean_wells, WT_string)
+```
+
